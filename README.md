@@ -1,0 +1,3 @@
+- 下载gradle-5.4.1-all.zip
+- https://services.gradle.org/distributions/gradle-5.4.1-all.zip
+- 放到/android/gradle/wrapper/gradle-5.4.1-all.zip

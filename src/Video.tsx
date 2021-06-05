@@ -10,14 +10,15 @@ import {
   ScrollView,
 } from 'react-native';
 import { Dimensions } from 'react-native';
-import { Longlist } from 'beeshell';
 import { useRequest, useUpdate } from 'ahooks';
 import { getVideoNewsList, IVideoNewsRes } from '@/apis/news';
-import { getAd, sendClickEvent, sendShowEvent } from '@/apis/ad';
-import { getRandomAdOrderNum, getImgUrl, getImg } from '@/utils';
+import { getAd, sendClickEvent, sendShowEvent, sendCustomEvent } from '@/SDK';
+import { getImgUrl } from '@/SDK/utils';
+import { getRandomAdOrderNum, getImg } from '@/utils';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Carousel from 'react-native-snap-carousel';
 import useDirectionalConfig from '@/hooks/useDirectionalConfig';
+import { VIDEO_BANNER_CODE_ID } from '@/constants/ad';
 
 const screenWidth = Math.round(Dimensions.get('window').width);
 
@@ -35,13 +36,13 @@ const Video = () => {
   const directionalConfig = useDirectionalConfig();
   const update = useUpdate();
   const handleAdShow = (ads_id: string) => {
-    sendShowEvent(ads_id, '60b3444c28d2f9612c4453f4');
+    sendShowEvent(ads_id, VIDEO_BANNER_CODE_ID);
   };
   const handlePress = (newsInfo: IVideoNews) => {
     Linking.openURL(newsInfo.share_url);
     if (newsInfo.type === 'ad') {
       newsInfo.adConfig &&
-        sendClickEvent(newsInfo.adConfig?.ads_id, '60b3444c28d2f9612c4453f4');
+        sendClickEvent(newsInfo.adConfig?.ads_id, VIDEO_BANNER_CODE_ID);
     }
   };
   const getCarouselListR = useRequest(getVideoNewsList, {
@@ -49,7 +50,11 @@ const Video = () => {
     onSuccess: async (res) => {
       let ad: IVideoNews[] = [];
       try {
-        const _ad = await getAd('banner', directionalConfig);
+        const _ad = await getAd(
+          'banner',
+          VIDEO_BANNER_CODE_ID,
+          directionalConfig,
+        );
         ad = _ad.map((i) => ({
           big_pic: getImgUrl(i.creative_config.img),
           h_pic: getImgUrl(i.creative_config.img),
@@ -99,6 +104,8 @@ const Video = () => {
   useEffect(() => {
     getCarouselListR.run();
     getNewsListR.run();
+    sendCustomEvent('60bb6dd72507b156e03ed0a0', 'video', 'show');
+    sendCustomEvent('60bb6dd72507b156e03ed0a0', 'video', 'click');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (

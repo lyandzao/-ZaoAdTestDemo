@@ -11,13 +11,9 @@ import { Dimensions } from 'react-native';
 import { Longlist } from 'beeshell';
 import { useRequest, useUpdate } from 'ahooks';
 import { getNewsList } from '@/apis/news';
-import {
-  getAd,
-  sendClickEvent,
-  sendShowEvent,
-  sendCustomEvent,
-} from '@/apis/ad';
-import { getRandomAdOrderNum, getImgUrl, getImg } from '@/utils';
+import { getAd, sendClickEvent, sendShowEvent, sendCustomEvent } from '@/SDK';
+import { getImgUrl } from '@/SDK/utils';
+import { getRandomAdOrderNum, getImg } from '@/utils';
 import Spinner from 'react-native-loading-spinner-overlay';
 import useDirectionalConfig from '@/hooks/useDirectionalConfig';
 import { HOME_STREAM_CODE_ID } from '@/constants/ad';
@@ -25,10 +21,10 @@ import { HOME_STREAM_CODE_ID } from '@/constants/ad';
 const screenWidth = Math.round(Dimensions.get('window').width);
 
 interface INews {
-  path: string;
-  image: string;
+  url: string;
+  thumbnail_pic_s: string;
   title: string;
-  passtime: string;
+  date: string;
   type?: 'ad' | 'normal';
   adConfig?: {
     ads_id: string;
@@ -45,7 +41,7 @@ const Home = () => {
     sendShowEvent(ads_id, HOME_STREAM_CODE_ID);
   };
   const handlePress = (newsInfo: INews) => {
-    Linking.openURL(newsInfo.path);
+    Linking.openURL(newsInfo.url);
     if (newsInfo.type === 'ad') {
       newsInfo.adConfig &&
         sendClickEvent(newsInfo.adConfig?.ads_id, HOME_STREAM_CODE_ID);
@@ -61,12 +57,16 @@ const Home = () => {
       setInitCount(initCount + 1);
       let ad: INews[] = [];
       try {
-        const _ad = await getAd('stream', directionalConfig);
+        const _ad = await getAd(
+          'stream',
+          HOME_STREAM_CODE_ID,
+          directionalConfig,
+        );
         ad = _ad.map((i) => ({
-          path: i.creative_config.location_url,
-          image: getImgUrl(i.creative_config.img),
+          url: i.creative_config.location_url,
+          thumbnail_pic_s: getImgUrl(i.creative_config.img),
           title: i.creative_config.desc,
-          passtime: '',
+          date: '',
           type: 'ad',
           adConfig: {
             ads_id: i._id,
@@ -93,12 +93,16 @@ const Home = () => {
     onSuccess: async (res) => {
       let ad: INews[] = [];
       try {
-        const _ad = await getAd('stream', directionalConfig);
+        const _ad = await getAd(
+          'stream',
+          HOME_STREAM_CODE_ID,
+          directionalConfig,
+        );
         ad = _ad.map((i) => ({
-          path: i.creative_config.location_url,
-          image: getImgUrl(i.creative_config.img),
+          url: i.creative_config.location_url,
+          thumbnail_pic_s: getImgUrl(i.creative_config.img),
           title: i.creative_config.desc,
-          passtime: '',
+          date: '',
           type: 'ad',
           adConfig: {
             ads_id: i._id,
@@ -121,7 +125,8 @@ const Home = () => {
   });
   useEffect(() => {
     getNewsListR.run();
-    sendCustomEvent('6086a332403a7419cfeed9fc', 'home', 'show');
+    sendCustomEvent('60bb6dd72507b156e03ed0a0', 'home', 'show');
+    sendCustomEvent('60bb6dd72507b156e03ed0a0', 'home', 'click');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
@@ -153,7 +158,7 @@ const Home = () => {
           const news: INews = item;
           return (
             <TouchableOpacity
-              key={news.path}
+              key={news.url}
               activeOpacity={0.5}
               onPress={() => handlePress(news)}
             >
@@ -161,10 +166,13 @@ const Home = () => {
                 <View style={styles.newsInfo}>
                   <Text style={styles.newsTitle}>{news.title}</Text>
                   <Text style={styles.newsTime}>
-                    {news.type === 'ad' ? '广告' : news.passtime}
+                    {news.type === 'ad' ? '广告' : news.date}
                   </Text>
                 </View>
-                <Image source={getImg(news.image)} style={styles.img} />
+                <Image
+                  source={getImg(news.thumbnail_pic_s)}
+                  style={styles.img}
+                />
               </View>
             </TouchableOpacity>
           );

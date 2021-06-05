@@ -1,10 +1,10 @@
 import axios from './index';
 
 export interface INewsRes {
-  path: string;
-  image: string;
+  url: string;
+  thumbnail_pic_s: string;
   title: string;
-  passtime: string;
+  date: string;
 }
 
 export interface IVideoNewsRes {

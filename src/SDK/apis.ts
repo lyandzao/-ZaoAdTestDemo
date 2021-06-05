@@ -1,4 +1,4 @@
-import axios from './index';
+import axios from './axios';
 
 export interface IAd {
   _id: string;
@@ -16,11 +16,21 @@ export interface IAd {
 
 export const getAd = (
   type: string,
+  code_id: string,
   directionalConfig?: any,
 ): Promise<IAd[]> => {
   console.log(directionalConfig);
   return axios.get('/sdk/ad', {
-    params: { type, directionalConfig: JSON.stringify(directionalConfig) },
+    params: {
+      type,
+      directionalConfig: JSON.stringify(directionalConfig),
+      code_id,
+    },
+  });
+};
+export const getSplashAd = (code_id: string): Promise<IAd[]> => {
+  return axios.get('/sdk/ad/splash', {
+    params: { code_id },
   });
 };
 

@@ -4,9 +4,15 @@ import { View, Text } from 'react-native';
 import { Input, CheckBox } from 'react-native-elements';
 import { useRecoilState } from 'recoil';
 import { userInfoState } from '@/globalState';
+import { sendCustomEvent } from '@/SDK';
+import { useMount } from 'ahooks';
 
 const Center = () => {
   const [userInfo, setUserInfo] = useRecoilState(userInfoState);
+  useMount(() => {
+    sendCustomEvent('60bb6dd72507b156e03ed0a0', 'center', 'show');
+    sendCustomEvent('60bb6dd72507b156e03ed0a0', 'center', 'click');
+  });
   return (
     <View>
       {/* <Text>{JSON.stringify(userInfo)}</Text> */}

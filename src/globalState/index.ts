@@ -4,7 +4,7 @@ export const userInfoState = atom({
   key: 'userInfo',
   default: {
     gender: 'man',
-    age: '22',
+    age: '25',
     location: '重庆',
   },
 });
